@@ -1,0 +1,17 @@
+{
+  "name": "Dominoza — Tutorial de dominó en parejas",
+  "short_name": "Dominoza",
+  "description": "Aprende a jugar dominó en parejas: reglas, estrategia, ejercicios y práctica contra bots con pistas explicadas.",
+  "lang": "es",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0e5e3e",
+  "theme_color": "#0e5e3e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
