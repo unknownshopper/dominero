@@ -239,28 +239,29 @@
       ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
       : -1;
     const names = window.DOMI.SEAT_NAMES;
+    const PER_ROW = 8, SLOTW = 72; // ancho de casilla fijo: las esquinas siempre conectan
+    const n = game.chain.length;
     const cells = game.chain.map((t, i) => {
+      const endSide = i === 0 ? 'L' : i === n - 1 ? 'R' : null;
       const cls = [
-        (i === 0 || i === game.chain.length - 1) ? 'end' : '',
-        i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)} fly${lm.p}` : ''
+        endSide ? 'end' : '',
+        myTurn && endSide ? 'drop-tile' : '',
+        i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)} fly${lm.p}` : '',
+        (i > 0 && i % PER_ROW === 0) ? 'corner' : ''   // la ficha que dobla, de caballo
       ].join(' ');
       const who = t.by !== undefined
         ? `data-who="la tiró ${names[t.by]}" data-team="${window.DOMI.teamOf(t.by)}"`
         : '';
-      return tileHTML(t, cls, who);
+      const side = (myTurn && endSide) ? `data-side="${endSide}"` : '';
+      return tileHTML(t, cls, `${who} ${side}`);
     });
 
-    // serpiente: filas alternadas (bustrofedón), dz en los extremos reales
-    const PER_ROW = 8;
+    // serpiente: filas alternadas de ancho exacto -> esquinas alineadas
     const rows = [];
     for (let i = 0; i < cells.length; i += PER_ROW) rows.push(cells.slice(i, i + PER_ROW));
-    return rows.map((row, ri) => {
-      let inner = '';
-      if (ri === 0) inner += dz('L', `punta ${e.L}`);
-      inner += row.join('');
-      if (ri === rows.length - 1) inner += dz('R', `punta ${e.R}`);
-      return `<div class="srow${ri % 2 ? ' rev' : ''}">${inner}</div>`;
-    }).join('');
+    return rows.map((row, ri) =>
+      `<div class="srow${ri % 2 ? ' rev' : ''}" style="width:${PER_ROW * SLOTW}px">${row.join('')}</div>`
+    ).join('');
   }
 
   // letrero de la última jugada sobre la mesa
@@ -357,7 +358,7 @@
         ev.dataTransfer.effectAllowed = 'move';
       });
     });
-    view.querySelectorAll('.dropzone').forEach(z => {
+    view.querySelectorAll('.dropzone, .chain .drop-tile').forEach(z => {
       z.addEventListener('dragover', ev => { ev.preventDefault(); z.classList.add('over'); });
       z.addEventListener('dragleave', () => z.classList.remove('over'));
       z.addEventListener('drop', ev => {
