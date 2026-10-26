@@ -507,6 +507,24 @@ body {
   .mesa { grid-template-columns: 64px minmax(0, 1fr) 64px; padding: 10px; }
   .backs .tile-back { width: 15px; height: 26px; margin-left: -8px; }
   .backs.vert .tile-back { width: 26px; height: 15px; margin-top: -6px; }
+  /* rivales como plaquitas horizontales: no invaden la serpiente */
+  .mesa-seat.side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-self: start;
+    margin-top: 0;
+    padding: 4px 8px;
+    gap: 5px;
+    font-size: .72rem;
+  }
+  .mesa-seat.side .name { font-size: .72rem; }
+  .mesa-seat.side .backs.vert { padding-left: 0; }
+  .mesa-seat.side .backs.vert .tile-back {
+    width: 14px; height: 22px;
+    margin-left: -8px; margin-top: 0;
+  }
+  .mesa-seat.side .backs.vert .tile-back:first-child { margin-left: 0; }
 }
 
 .domino.grabbable { cursor: grab; }
