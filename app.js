@@ -240,10 +240,10 @@
       : -1;
     const names = window.DOMI.SEAT_NAMES;
     // fichas por fila: las que quepan en el ancho real de la mesa
-    const w = Math.min(window.innerWidth, 1280);
-    const avail = window.innerWidth <= 880 ? w - 130 : Math.min(780, w - 380) - 44;
+    // (la mesa mide min(780px, 150vw) — puede desbordar la pantalla)
+    const mesaW = Math.min(780, window.innerWidth * 1.5);
     const slot = window.innerWidth <= 400 ? 54 : window.innerWidth <= 700 ? 62 : 76;
-    const PER_ROW = Math.max(4, Math.floor(avail / slot));
+    const PER_ROW = Math.max(4, Math.floor((mesaW - 90) / slot));
     const n = game.chain.length;
     const cells = game.chain.map((t, i) => {
       const rowIdx = Math.floor(i / PER_ROW);
