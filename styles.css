@@ -169,17 +169,18 @@ body {
 
 /* ---------- Domino tiles ---------- */
 
-.domino {
+.domino { display: inline-flex; align-items: center; position: relative; user-select: none; }
+
+.domino .face {
   display: inline-flex;
-  align-items: stretch;
+  align-items: center;
   gap: 4px;
-  background: linear-gradient(180deg, #fffdf6, var(--tile));
+  background: linear-gradient(180deg, #fbf8f2, #ece6da);
   border: 1px solid var(--tile-edge);
-  border-radius: 7px;
-  padding: 6px 8px;
+  border-radius: 8px;
+  padding: 8px;
   color: var(--ink);
   box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
-  user-select: none;
 }
 
 .domino .sep { width: 1.5px; align-self: stretch; background: var(--tile-edge); }
@@ -193,17 +194,20 @@ body {
 .domino .pip { border-radius: 50%; }
 .domino .pip.on { background: #20242a; }
 
-.domino.double, .domino.corner { flex-direction: column; align-items: center; }
-.domino.double .sep, .domino.corner .sep { width: auto; height: 1.5px; align-self: stretch; }
+/* mulas y esquinas de caballo: la cara gira 90°, como ficha real volteada */
+.srow .domino.double, .srow .domino.corner { height: 78px; justify-content: center; }
+.srow .domino.double .face, .srow .domino.corner .face { transform: rotate(90deg); }
 
-.domino.mini { padding: 4px 5px; border-radius: 5px; gap: 3px; }
+.domino.mini .face { padding: 4px 5px; border-radius: 5px; gap: 3px; }
 .domino.mini .half { grid-template-columns: repeat(3, 4px); grid-template-rows: repeat(3, 4px); gap: 1px; }
 
 .hand .domino { cursor: pointer; transition: transform .12s, box-shadow .12s; }
-.hand .domino:hover { transform: translateY(-6px); box-shadow: 0 6px 10px rgba(0, 0, 0, .45); }
+.hand .domino:hover { transform: translateY(-6px); }
+.hand .domino:hover .face { box-shadow: 0 6px 10px rgba(0, 0, 0, .45); }
 .hand .domino.unplayable { opacity: .38; cursor: not-allowed; }
 .hand .domino.unplayable:hover { transform: none; }
-.hand .domino.selected { outline: 3px solid var(--accent); transform: translateY(-6px); }
+.hand .domino.selected { transform: translateY(-6px); }
+.hand .domino.selected .face { outline: 3px solid var(--accent); }
 
 .chain {
   display: flex;
@@ -224,18 +228,16 @@ body {
   box-sizing: border-box;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 5px;
 }
-.srow .domino.corner { padding: 8px 6px; }
 
 /* la ficha de punta es el blanco de soltado */
 .domino.drop-tile { cursor: copy; }
-.domino.drop-tile.over {
+.domino.drop-tile.over .face {
   outline: 3px solid var(--accent);
   background: linear-gradient(180deg, #fff7d6, #ffe9a8);
 }
 
-.chain .end { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.chain .domino.end .face { outline: 2px dashed var(--accent); outline-offset: 2px; }
 .chain.dragover { border-color: var(--accent); background: rgba(242, 177, 52, .1); }
 .chain-empty { color: var(--muted); font-size: .85rem; font-style: italic; }
 
@@ -320,8 +322,8 @@ body {
 
 /* la ficha recién jugada vuela desde el asiento de quien la tiró */
 .domino.last { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .8, .3, 1); }
-.domino.last.t0 { outline: 3px solid #8fd6ff; outline-offset: 2px; }
-.domino.last.t1 { outline: 3px solid #ff8a70; outline-offset: 2px; }
+.domino.last.t0 .face { outline: 3px solid #8fd6ff; outline-offset: 2px; }
+.domino.last.t1 .face { outline: 3px solid #ff8a70; outline-offset: 2px; }
 .domino.last.fly0 { animation-name: flyB; }  /* tú: desde abajo */
 .domino.last.fly1 { animation-name: flyR; }  /* rival der.: desde la derecha */
 .domino.last.fly2 { animation-name: flyT; }  /* pareja: desde arriba */
@@ -607,7 +609,7 @@ body {
 }
 #flash-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-.domino.shake { animation: shake .35s ease; }
+.domino.shake .face { animation: shake .35s ease; }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-6px); }

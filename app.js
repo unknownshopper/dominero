@@ -18,12 +18,11 @@
       .map(i => `<i class="pip${PIPS[n].includes(i) ? ' on' : ''}"></i>`).join('')}</span>`;
 
   const tileHTML = (t, cls = '', extra = '') =>
-    `<span class="domino ${t.a === t.b ? 'double' : ''} ${cls}" data-id="${t.id ?? `${t.a}|${t.b}`}" ${extra}>
-       ${halfHTML(t.a)}<span class="sep"></span>${halfHTML(t.b)}
-     </span>`;
+    `<span class="domino ${t.a === t.b ? 'double' : ''} ${cls}" data-id="${t.id ?? `${t.a}|${t.b}`}" ${extra}>` +
+      `<span class="face">${halfHTML(t.a)}<span class="sep"></span>${halfHTML(t.b)}</span></span>`;
 
   const miniTile = (a, b) =>
-    `<span class="domino mini">${halfHTML(a)}<span class="sep"></span>${halfHTML(b)}</span>`;
+    `<span class="domino mini"><span class="face">${halfHTML(a)}<span class="sep"></span>${halfHTML(b)}</span></span>`;
 
   /* ---------- navegación ---------- */
 
