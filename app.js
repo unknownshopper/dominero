@@ -295,7 +295,6 @@
     view.innerHTML = `
       <div class="table-wrap">
         <div class="table">
-          ${game.over ? resultBanner() : ''}
           <div class="mesa">
             ${seatTop(2)}
             ${seatSide(3, 'left')}
@@ -308,6 +307,7 @@
               ${seatRow(0)}
               <div class="hand">${handHTML()}</div>
             </div>
+            ${game.over ? endOverlay() : ''}
           </div>
           ${e ? `<p style="font-size:.8rem;color:var(--muted)">Puntas abiertas:
                 <b style="color:#ffe1a1">${e.L}</b> (izq) · <b style="color:#ffe1a1">${e.R}</b> (der)</p>` : ''}
@@ -316,8 +316,7 @@
             ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
               ? '<button class="btn" id="btn-pass">Pasar (no tienes jugada)</button>' : ''}
             ${myTurn ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
-            ${game.over ? '<button class="btn" id="btn-new">Nueva mano</button>' : ''}
-            <button class="btn ghost small" id="btn-reset">Reiniciar</button>
+            ${!game.over ? '<button class="btn ghost small" id="btn-reset">Reiniciar</button>' : ''}
           </div>
           <div id="hint-slot">${hintHTML}</div>
           <details class="ollama">
@@ -360,19 +359,31 @@
     const bp = $('#btn-pass'); if (bp) bp.onclick = () => { busy = true; window.DOMI.pass(game, HUMAN); drawTable(); maybeBots(); };
     const bh = $('#btn-hint'); if (bh) bh.onclick = showHint;
     const bn = $('#btn-new'); if (bn) bn.onclick = renderPractice;
-    $('#btn-reset').onclick = renderPractice;
+    const br = $('#btn-reset'); if (br) br.onclick = renderPractice;
     const bo = $('#btn-ollama'); if (bo) bo.onclick = askOllama;
     const ml = $('#mlog'); if (ml) ml.scrollTop = ml.scrollHeight;
   }
 
-  function resultBanner() {
+  // telón de fin de mano: ganador, detalle y revelación de manos
+  function endOverlay() {
     const r = game.result;
     const win = r.winnerTeam === 0;
+    const names = window.DOMI.SEAT_NAMES;
     const title = r.type === 'domino'
-      ? (win ? '¡Dominaste la mano!' : 'El rival dominó la mano.')
-      : (win ? 'Tranca a tu favor.' : 'Tranca en tu contra.');
-    return `<div class="banner ${win ? 'win' : 'lose'}">
-      ${title} ${r.detail} ${r.winnerTeam !== null ? `+${r.points} pts al equipo ganador.` : ''}
+      ? (win ? '🏆 ¡Dominó de tu equipo!' : `${names[r.winner]} dominó la mano`)
+      : (r.winnerTeam === null ? 'Tranca: empate'
+        : win ? '🔒 Tranca a tu favor' : '🔒 Tranca en tu contra');
+    const reveal = game.hands.map((h, p) => `
+      <div class="reveal ${p === HUMAN ? 'you' : window.DOMI.teamOf(p) === 0 ? 'partner' : 'rival'}">
+        <span class="rn">${names[p]}</span>
+        <span class="rt">${h.length ? h.map(t => miniTile(t.a, t.b)).join('') : '<em>dominó — sin fichas</em>'}</span>
+        <span class="rp">${window.DOMI.handPips(h)} pts</span>
+      </div>`).join('');
+    return `<div class="end-overlay ${win ? 'win' : 'lose'}">
+      <h2>${title}</h2>
+      <p>${r.detail} ${r.winnerTeam !== null && r.points ? `· <b>+${r.points} pts</b>` : ''}</p>
+      <div class="reveal-grid">${reveal}</div>
+      <button class="btn" id="btn-new">Nueva mano</button>
     </div>`;
   }
 

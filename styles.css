@@ -244,6 +244,7 @@ body {
 /* ---------- Mesa de 4 jugadores ---------- */
 
 .mesa {
+  position: relative;
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr) 92px;
   grid-template-rows: auto minmax(160px, auto) auto;
@@ -330,6 +331,57 @@ body {
 
 .mesa-bottom { grid-column: 1 / -1; grid-row: 3; }
 .mesa-bottom .seat { background: transparent; border: none; padding: 2px 6px; }
+
+/* telón de fin de mano */
+.end-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(4, 24, 16, .93);
+  backdrop-filter: blur(3px);
+  text-align: center;
+  animation: fadein .4s ease-out;
+}
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+.end-overlay h2 { font-size: 1.5rem; }
+.end-overlay.win h2 { color: var(--good); }
+.end-overlay.lose h2 { color: #ff8a70; }
+.end-overlay > p { color: #d9efe5; font-size: .92rem; }
+
+.reveal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 580px;
+}
+@media (max-width: 560px) { .reveal-grid { grid-template-columns: 1fr; } }
+
+.reveal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: .8rem;
+}
+.reveal .rn { font-weight: 700; min-width: 74px; text-align: left; }
+.reveal.you .rn { color: #fff; }
+.reveal.partner .rn { color: #8fd6ff; }
+.reveal.rival .rn { color: #ffb3a0; }
+.reveal .rt { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.reveal .rt em { color: var(--muted); font-size: .75rem; }
+.reveal .rp { color: var(--accent); font-weight: 700; white-space: nowrap; }
 
 /* fichas boca abajo */
 .backs { display: flex; padding-left: 10px; }
