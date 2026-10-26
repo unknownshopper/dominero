@@ -186,12 +186,18 @@
   }
 
   function chainHTML() {
-    if (!game.chain.length) return '<span class="chain-empty">Cadena vacía — sale la mula mayor.</span>';
-    const e = window.DOMI.ends(game);
-    return game.chain.map((t, i) => {
+    const myTurn = game.turn === HUMAN && !game.over && !busy;
+    const dz = side => myTurn ? `<span class="dropzone" data-side="${side}">${side === 'L' ? '◀ suelta' : 'suelta ▶'}</span>` : '';
+    if (!game.chain.length) {
+      return myTurn
+        ? `<span class="chain-empty">Arrastra tu ficha de salida aquí</span>${dz('L')}`
+        : '<span class="chain-empty">Cadena vacía — sale la mula mayor.</span>';
+    }
+    const tiles = game.chain.map((t, i) => {
       const isEnd = i === 0 || i === game.chain.length - 1;
       return tileHTML(t, isEnd ? 'end' : '');
     }).join('');
+    return dz('L') + tiles + dz('R');
   }
 
   function signalsHTML() {
@@ -215,7 +221,8 @@
         myTurn && ok ? '' : 'unplayable',
         selected === t ? 'selected' : ''
       ].join(' ');
-      return `<span data-tile="${t.id}">${tileHTML(t, cls)}</span>`;
+      const drag = myTurn && ok ? 'draggable="true"' : '';
+      return `<span data-tile="${t.id}" ${drag}>${tileHTML(t, cls + (myTurn && ok ? ' grabbable' : ''))}</span>`;
     }).join('');
   }
 
@@ -261,12 +268,25 @@
         </aside>
       </div>`;
 
-    // interacciones
+    // interacciones: clic y arrastrar-soltar
     view.querySelectorAll('.hand [data-tile]').forEach(el => {
-      el.onp = $('#btn-pass');
-    if (bp) bp.onclick = () => { busy = true; window.DOMI.pass(game, HUMAN); drawTable(); maybeBots(); };
-    const bclick = () => onTileClick(el.dataset.tile);
+      el.onclick = () => onTileClick(el.dataset.tile);
+      el.addEventListener('dragstart', ev => {
+        ev.dataTransfer.setData('text/plain', el.dataset.tile);
+        ev.dataTransfer.effectAllowed = 'move';
+      });
     });
+    view.querySelectorAll('.dropzone').forEach(z => {
+      z.addEventListener('dragover', ev => { ev.preventDefault(); z.classList.add('over'); });
+      z.addEventListener('dragleave', () => z.classList.remove('over'));
+      z.addEventListener('drop', ev => {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData('text/plain');
+        const tile = game.hands[HUMAN].find(t => t.id === id);
+        if (tile) attemptPlay(tile, z.dataset.side);
+      });
+    });
+    const bp = $('#btn-pass'); if (bp) bp.onclick = () => { busy = true; window.DOMI.pass(game, HUMAN); drawTable(); maybeBots(); };
     const bh = $('#btn-hint'); if (bh) bh.onclick = showHint;
     const bn = $('#btn-new'); if (bn) bn.onclick = renderPractice;
     $('#btn-reset').onclick = renderPractice;
@@ -285,27 +305,36 @@
     </div>`;
   }
 
+  // Intenta jugar una ficha; `side` opcional ('L'/'R'). Devuelve true si se jugó o se pidió lado.
+  function attemptPlay(tile, side) {
+    const mv = window.DOMI.legalMoves(game, HUMAN).find(m => m.tile === tile);
+    if (!mv) return false;
+    const sides = mv.side === 'both' ? ['L', 'R'] : [mv.side === 'any' ? 'L' : mv.side];
+    if (side && !sides.includes(side)) return false;
+    if (!side && sides.length > 1) { showSidePicker(tile); return true; }
+    playHuman(tile, side || sides[0]);
+    return true;
+  }
+
+  function showSidePicker(tile) {
+    selected = tile;
+    drawTable();
+    const e = window.DOMI.ends(game);
+    $('#side-picker').innerHTML = `
+      <div class="side-picker">
+        <span class="lbl">[${tile.a}|${tile.b}] pega en ambas. ¿Dónde la pones?</span>
+        <button class="btn small" data-side="L">◀ Punta ${e.L} (izq)</button>
+        <button class="btn small" data-side="R">Punta ${e.R} (der) ▶</button>
+      </div>`;
+    view.querySelectorAll('#side-picker [data-side]').forEach(b => {
+      b.onclick = () => playHuman(tile, b.dataset.side);
+    });
+  }
+
   function onTileClick(id) {
     if (game.over || busy || game.turn !== HUMAN) return;
     const tile = game.hands[HUMAN].find(t => t.id === id);
-    const mv = window.DOMI.legalMoves(game, HUMAN).find(m => m.tile === tile);
-    if (!mv) return;
-
-    if (mv.side === 'both') {
-      selected = tile;
-      drawTable();
-      $('#side-picker').innerHTML = `
-        <div class="side-picker">
-          <span class="lbl">[${tile.a}|${tile.b}] pega en ambas. ¿Dónde la pones?</span>
-          <button class="btn small" data-side="L">◀ Punta ${window.DOMI.ends(game).L} (izq)</button>
-          <button class="btn small" data-side="R">Punta ${window.DOMI.ends(game).R} (der) ▶</button>
-        </div>`;
-      view.querySelectorAll('#side-picker [data-side]').forEach(b => {
-        b.onclick = () => playHuman(tile, b.dataset.side);
-      });
-    } else {
-      playHuman(tile, mv.side === 'any' ? 'L' : mv.side);
-    }
+    if (tile) attemptPlay(tile, null);
   }
 
   function playHuman(tile, side) {
@@ -322,7 +351,12 @@
     if (game.turn === HUMAN) { busy = false; drawTable(); return; }
     busy = true;
     setTimeout(() => {
-      window.DOMI.botTurn(game, game.turn);
+      try {
+        window.DOMI.botTurn(game, game.turn);
+      } catch (err) {
+        console.error('bot error', err);
+        window.DOMI.pass(game, game.turn); // fallback: nunca congelar
+      }
       drawTable();
       maybeBots();
     }, 750);
