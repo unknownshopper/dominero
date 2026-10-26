@@ -168,7 +168,8 @@ window.DOMI = (() => {
   /* ---------- evaluación / bots / pistas ---------- */
 
   // Evalúa el nuevo extremo que dejaría una jugada para el jugador p.
-  function scoreEnd(state, p, suit, reasons) {
+  // `excl`: la ficha que se juega, para no contarla como continuidad restante.
+  function scoreEnd(state, p, suit, reasons, excl) {
     const nxt = nextOf(p);          // rival que come primero
     const par = partnerOf(p);
     const other = (p + 3) % 4;      // otro rival
@@ -187,9 +188,11 @@ window.DOMI = (() => {
       s -= 5;
       reasons.push(`⚠ tu pareja pasó con ${suit}: se lo dejarías muerto`);
     }
-    if (countSuit(state.hands[p], suit) > 0) {
+    const left = countSuit(state.hands[p], suit)
+      - (excl && (excl.a === suit || excl.b === suit) ? 1 : 0);
+    if (left > 0) {
       s += 1.5;
-      reasons.push(`conservas continuidad en el ${suit}`);
+      reasons.push(`te quedan ${left} ficha(s) más con ${suit}`);
     }
     if ((state.played[nxt][suit] || 0) >= 2) {
       s -= 3;
@@ -231,8 +234,8 @@ window.DOMI = (() => {
         // la punta nueva pesa más; la que se conserva cuenta un poco
         const freshEnd = side === 'R' ? newR : newL;
         const keptEnd = side === 'R' ? newL : newR;
-        score += scoreEnd(state, p, freshEnd, reasons);
-        score += scoreEnd(state, p, keptEnd, []) * 0.4;
+        score += scoreEnd(state, p, freshEnd, reasons, t);
+        score += scoreEnd(state, p, keptEnd, [], t) * 0.4;
 
         if (newL === newR) {
           score += 1;
