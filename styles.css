@@ -213,6 +213,10 @@ body {
 .domino.mini .face { padding: 4px 5px; border-radius: 5px; gap: 3px; }
 .domino.mini .half { grid-template-columns: repeat(3, 4px); grid-template-rows: repeat(3, 4px); gap: 1px; }
 
+/* mano en vertical: como fichas paradas frente a ti */
+.hand .domino { height: calc(var(--slotw) + 12px); justify-content: center; }
+.hand .domino .face { transform: rotate(90deg); }
+
 .hand .domino { cursor: pointer; transition: transform .12s, box-shadow .12s; }
 .hand .domino:hover { transform: translateY(-6px); }
 .hand .domino:hover .face { box-shadow: 0 6px 10px rgba(0, 0, 0, .45); }
@@ -220,6 +224,21 @@ body {
 .hand .domino.unplayable:hover { transform: none; }
 .hand .domino.selected { transform: translateY(-6px); }
 .hand .domino.selected .face { outline: 3px solid var(--accent); }
+
+/* reordenar mano: marca el destino */
+.hand [data-tile].drop-here .face { outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+/* sugerencia automática: pulso verde */
+.domino.suggested .face {
+  outline: 3px solid var(--good);
+  outline-offset: 2px;
+  animation: pulseGlow 1s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(46, 204, 113, .4); }
+  50% { box-shadow: 0 0 18px rgba(46, 204, 113, .9); }
+}
+.hint-box.auto { border-color: var(--good); }
 
 .chain {
   display: flex;

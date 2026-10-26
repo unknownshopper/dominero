@@ -171,7 +171,7 @@
   /* ---------- práctica ---------- */
 
   const HUMAN = 0;
-  let game = null, selected = null, busy = false;
+  let game = null, selected = null, busy = false, autoHintTimer = null;
 
   function renderPractice() {
     game = window.DOMI.newGame();
@@ -295,16 +295,28 @@
   function handHTML() {
     const legal = new Set(window.DOMI.legalMoves(game, HUMAN).map(m => m.tile.id));
     const myTurn = game.turn === HUMAN && !game.over && !busy;
-    const sorted = [...game.hands[HUMAN]].sort((x, y) => y.pips - x.pips);
-    return sorted.map(t => {
+    // conserva el orden que el jugador acomodó a mano (drag entre fichas)
+    return game.hands[HUMAN].map(t => {
       const ok = legal.has(t.id);
       const cls = [
         myTurn && ok ? '' : 'unplayable',
         selected === t ? 'selected' : ''
       ].join(' ');
-      const drag = myTurn ? 'draggable="true"' : '';  // todas arrastrables: si no pega, el juego explica
+      const drag = game.over ? '' : 'draggable="true"';
       return `<span data-tile="${t.id}" ${drag}>${tileHTML(t, cls + (myTurn && ok ? ' grabbable' : ''))}</span>`;
     }).join('');
+  }
+
+  // reordenar la mano arrastrando una ficha sobre otra
+  function reorderHand(dragId, targetId) {
+    if (dragId === targetId || !game) return;
+    const hand = game.hands[HUMAN];
+    const from = hand.findIndex(t => t.id === dragId);
+    const to = hand.findIndex(t => t.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [tile] = hand.splice(from, 1);
+    hand.splice(to, 0, tile);   // hacia la derecha cae después; hacia la izquierda, antes
+    drawTable();
   }
 
   function drawTable(hintHTML = '') {
@@ -363,6 +375,14 @@
         ev.dataTransfer.setData('text/plain', el.dataset.tile);
         ev.dataTransfer.effectAllowed = 'move';
       });
+      // soltar sobre otra ficha de la mano = reordenarla
+      el.addEventListener('dragover', ev => { ev.preventDefault(); ev.stopPropagation(); el.classList.add('drop-here'); });
+      el.addEventListener('dragleave', () => el.classList.remove('drop-here'));
+      el.addEventListener('drop', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        el.classList.remove('drop-here');
+        reorderHand(ev.dataTransfer.getData('text/plain'), el.dataset.tile);
+      });
     });
     // soltar sobre una punta elige ese lado explícitamente
     view.querySelectorAll('.dropzone, .chain .drop-tile').forEach(z => {
@@ -394,6 +414,25 @@
     const br = $('#btn-reset'); if (br) br.onclick = renderPractice;
     const bo = $('#btn-ollama'); if (bo) bo.onclick = askOllama;
     const ml = $('#mlog'); if (ml) ml.scrollTop = ml.scrollHeight;
+
+    // sugerencia automática tras 2s pensando en tu turno
+    clearTimeout(autoHintTimer);
+    if (myTurn && window.DOMI.legalMoves(game, HUMAN).length) {
+      autoHintTimer = setTimeout(autoHint, 2000);
+    }
+  }
+
+  // marca la jugada más fuerte y explica por qué
+  function autoHint() {
+    if (!game || game.over || busy || game.turn !== HUMAN) return;
+    const top = window.DOMI.hintsFor(game, HUMAN)[0];
+    if (!top) return;
+    const slot = $('#hint-slot');
+    if (slot && !slot.innerHTML) slot.innerHTML = `<div class="hint-box auto">
+      💡 <b>Sugerencia:</b> ${top.label}${top.sideLabel === 'salida' ? ' de salida' : ' por la ' + top.sideLabel}
+      — ${top.reasons[0]}</div>`;
+    const el = view.querySelector(`.hand [data-tile="${top.tile.id}"] .domino`);
+    if (el) el.classList.add('suggested');
   }
 
   // telón de fin de mano: ganador, detalle y revelación de manos
