@@ -207,15 +207,18 @@ body {
 
 .chain {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
+  flex-direction: column;
+  gap: 8px;
   min-height: 52px;
   padding: 12px;
   background: rgba(0, 0, 0, .22);
   border-radius: 12px;
   border: 1px dashed rgba(255, 255, 255, .15);
 }
+
+/* filas de la serpiente: las impares van al revés */
+.srow { display: flex; align-items: center; gap: 5px; }
+.srow.rev { flex-direction: row-reverse; }
 
 .chain .end { outline: 2px dashed var(--accent); outline-offset: 2px; }
 .chain-empty { color: var(--muted); font-size: .85rem; font-style: italic; }
@@ -299,14 +302,18 @@ body {
 .last-play.theirs { color: #ffb3a0; border: 1px solid rgba(255,138,112,.5); }
 .last-play.pass { color: #ff9d8a; border: 1px solid rgba(255,157,138,.4); font-style: italic; }
 
-/* la ficha recién jugada brilla con el color de su equipo */
-.domino.last { animation: pop .35s ease-out; }
+/* la ficha recién jugada vuela desde el asiento de quien la tiró */
+.domino.last { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .8, .3, 1); }
 .domino.last.t0 { outline: 3px solid #8fd6ff; outline-offset: 2px; }
 .domino.last.t1 { outline: 3px solid #ff8a70; outline-offset: 2px; }
-@keyframes pop {
-  0% { transform: scale(1.4); }
-  100% { transform: scale(1); }
-}
+.domino.last.fly0 { animation-name: flyB; }  /* tú: desde abajo */
+.domino.last.fly1 { animation-name: flyR; }  /* rival der.: desde la derecha */
+.domino.last.fly2 { animation-name: flyT; }  /* pareja: desde arriba */
+.domino.last.fly3 { animation-name: flyL; }  /* rival izq.: desde la izquierda */
+@keyframes flyB { from { transform: translateY(80px) scale(1.15); opacity: .15; } }
+@keyframes flyT { from { transform: translateY(-80px) scale(1.15); opacity: .15; } }
+@keyframes flyR { from { transform: translateX(80px) scale(1.15); opacity: .15; } }
+@keyframes flyL { from { transform: translateX(-80px) scale(1.15); opacity: .15; } }
 
 /* tooltip: quién tiró esta ficha */
 .domino[data-who] { position: relative; cursor: help; }

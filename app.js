@@ -239,17 +239,28 @@
       ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
       : -1;
     const names = window.DOMI.SEAT_NAMES;
-    const tiles = game.chain.map((t, i) => {
+    const cells = game.chain.map((t, i) => {
       const cls = [
         (i === 0 || i === game.chain.length - 1) ? 'end' : '',
-        i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)}` : ''
+        i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)} fly${lm.p}` : ''
       ].join(' ');
       const who = t.by !== undefined
         ? `data-who="la tiró ${names[t.by]}" data-team="${window.DOMI.teamOf(t.by)}"`
         : '';
       return tileHTML(t, cls, who);
+    });
+
+    // serpiente: filas alternadas (bustrofedón), dz en los extremos reales
+    const PER_ROW = 6;
+    const rows = [];
+    for (let i = 0; i < cells.length; i += PER_ROW) rows.push(cells.slice(i, i + PER_ROW));
+    return rows.map((row, ri) => {
+      let inner = '';
+      if (ri === 0) inner += dz('L', `punta ${e.L}`);
+      inner += row.join('');
+      if (ri === rows.length - 1) inner += dz('R', `punta ${e.R}`);
+      return `<div class="srow${ri % 2 ? ' rev' : ''}">${inner}</div>`;
     }).join('');
-    return dz('L', `punta ${e.L}`) + tiles + dz('R', `punta ${e.R}`);
   }
 
   // letrero de la última jugada sobre la mesa
