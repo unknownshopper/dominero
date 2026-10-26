@@ -575,11 +575,15 @@ body {
 .hand {
   display: flex;
   flex-wrap: nowrap;          /* una sola fila siempre */
-  overflow-x: auto;           /* si no caben, desliza */
-  justify-content: safe center;
-  gap: 8px;
+  justify-content: center;
   padding: 14px 6px 4px;
 }
+/* encimadas como mano real: todas caben sin scroll */
+.hand [data-tile] { position: relative; }
+.hand [data-tile] + [data-tile] { margin-left: -12px; }
+.hand [data-tile]:hover,
+.hand [data-tile]:has(.selected),
+.hand [data-tile]:has(.suggested) { z-index: 5; }
 
 .move-log {
   font-size: .8rem;
