@@ -185,19 +185,50 @@
       </div>`;
   }
 
+  // fichas boca abajo de los demás jugadores
+  const backsHTML = (n, vert) =>
+    `<div class="backs ${vert ? 'vert' : ''}" title="${n} fichas">${
+      '<span class="tile-back"></span>'.repeat(n)}</div>`;
+
+  // asiento superior: tu pareja
+  function seatTop(p) {
+    const n = game.hands[p].length;
+    const turn = game.turn === p && !game.over;
+    return `<div class="mesa-seat top partner ${turn ? 'turn' : ''}">
+      <span class="name">Tu pareja</span>
+      ${backsHTML(n, false)}
+      <span class="count">${n}</span>
+      ${turn ? '<span class="badge">TURNO</span>' : ''}
+    </div>`;
+  }
+
+  // asiento lateral: rivales
+  function seatSide(p, cls) {
+    const n = game.hands[p].length;
+    const turn = game.turn === p && !game.over;
+    return `<div class="mesa-seat side rival ${cls} ${turn ? 'turn' : ''}">
+      <span class="name">${window.DOMI.SEAT_NAMES[p]}</span>
+      ${turn ? '<span class="badge">TURNO</span>' : ''}
+      ${backsHTML(n, true)}
+      <span class="count">${n}</span>
+    </div>`;
+  }
+
   function chainHTML() {
     const myTurn = game.turn === HUMAN && !game.over && !busy;
-    const dz = side => myTurn ? `<span class="dropzone" data-side="${side}">${side === 'L' ? '◀ suelta' : 'suelta ▶'}</span>` : '';
+    const e = window.DOMI.ends(game);
+    const dz = (side, label) =>
+      myTurn ? `<span class="dropzone" data-side="${side}">${side === 'L' ? '◀' : '▶'}<br>${label}</span>` : '';
     if (!game.chain.length) {
       return myTurn
-        ? `<span class="chain-empty">Arrastra tu ficha de salida aquí</span>${dz('L')}`
+        ? `<span class="chain-empty">Arrastra tu ficha de salida al centro</span>${dz('L', 'pon aquí')}`
         : '<span class="chain-empty">Cadena vacía — sale la mula mayor.</span>';
     }
     const tiles = game.chain.map((t, i) => {
       const isEnd = i === 0 || i === game.chain.length - 1;
       return tileHTML(t, isEnd ? 'end' : '');
     }).join('');
-    return dz('L') + tiles + dz('R');
+    return dz('L', `punta ${e.L}`) + tiles + dz('R', `punta ${e.R}`);
   }
 
   function signalsHTML() {
@@ -233,14 +264,19 @@
       <div class="table-wrap">
         <div class="table">
           ${game.over ? resultBanner() : ''}
-          ${seatRow(2)}
-          <div class="rivals">${seatRow(3)}${seatRow(1)}</div>
-          <div class="chain" title="Puntas: ${e ? e.L + ' · ' + e.R : '—'}">${chainHTML()}</div>
+          <div class="mesa">
+            ${seatTop(2)}
+            ${seatSide(3, 'left')}
+            <div class="chain-area"><div class="chain">${chainHTML()}</div></div>
+            ${seatSide(1, 'right')}
+            <div class="mesa-bottom">
+              ${seatRow(0)}
+              <div class="hand">${handHTML()}</div>
+            </div>
+          </div>
           ${e ? `<p style="font-size:.8rem;color:var(--muted)">Puntas abiertas:
                 <b style="color:#ffe1a1">${e.L}</b> (izq) · <b style="color:#ffe1a1">${e.R}</b> (der)</p>` : ''}
           <div id="side-picker"></div>
-          ${seatRow(0)}
-          <div class="hand">${handHTML()}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
               ? '<button class="btn" id="btn-pass">Pasar (no tienes jugada)</button>' : ''}
