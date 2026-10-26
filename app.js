@@ -5,8 +5,7 @@
 (() => {
   const $ = s => document.querySelector(s);
   const view = $('#view');
-  const DIE = '⚀⚁⚂⚃⚄⚅';
-  const die = n => DIE[n];
+  const die = n => String.fromCodePoint(0x2680 + (Number(n) || 0)); // ⚀..⚅
 
   /* ---------- render de fichas ---------- */
 
@@ -48,7 +47,7 @@
     const { GLOSSARY } = window.DATA;
     view.innerHTML = `
       <section class="hero">
-        <div class="hero-tiles">🁢 🁣 🁤</div>
+        <div class="hero-tiles">${miniTile(6, 6)} ${miniTile(4, 2)} ${miniTile(0, 5)}</div>
         <h2>Aprende a jugar <span>en pareja</span></h2>
         <p>Dominó doble-6 para 4 jugadores, a la derecha. Aquí no gana quien tiene mejores
         fichas: gana la pareja que mejor se <b>lee</b>. Lecciones, señales, quiz y práctica
@@ -209,7 +208,8 @@
   function handHTML() {
     const legal = new Set(window.DOMI.legalMoves(game, HUMAN).map(m => m.tile.id));
     const myTurn = game.turn === HUMAN && !game.over && !busy;
-    return game.hands[HUMAN].map(t => {
+    const sorted = [...game.hands[HUMAN]].sort((x, y) => y.pips - x.pips);
+    return sorted.map(t => {
       const ok = legal.has(t.id);
       const cls = [
         myTurn && ok ? '' : 'unplayable',
@@ -235,6 +235,8 @@
           ${seatRow(0)}
           <div class="hand">${handHTML()}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
+              ? '<button class="btn" id="btn-pass">Pasar (no tienes jugada)</button>' : ''}
             ${myTurn ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
             ${game.over ? '<button class="btn" id="btn-new">Nueva mano</button>' : ''}
             <button class="btn ghost small" id="btn-reset">Reiniciar</button>
@@ -261,7 +263,9 @@
 
     // interacciones
     view.querySelectorAll('.hand [data-tile]').forEach(el => {
-      el.onclick = () => onTileClick(el.dataset.tile);
+      el.onp = $('#btn-pass');
+    if (bp) bp.onclick = () => { busy = true; window.DOMI.pass(game, HUMAN); drawTable(); maybeBots(); };
+    const bclick = () => onTileClick(el.dataset.tile);
     });
     const bh = $('#btn-hint'); if (bh) bh.onclick = showHint;
     const bn = $('#btn-new'); if (bn) bn.onclick = renderPractice;

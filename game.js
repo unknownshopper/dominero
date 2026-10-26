@@ -188,12 +188,6 @@ window.DOMI = (() => {
       s += 1.5;
       reasons.push(`conservas continuidad en el ${suit}`);
     }
-    // si quedan las dos puntas iguales presionamos posible tranca a favor
-    const e = ends(state);
-    if (e && e.L === suit) {
-      s += 1;
-      reasons.push(`dejas doble punta de ${suit} (presión/tranca)`);
-    }
     return s;
   }
 
@@ -205,11 +199,11 @@ window.DOMI = (() => {
       const sides = mv.side === 'both' ? ['L', 'R'] : [mv.side];
       for (const side of sides) {
         const t = mv.tile;
-        // nuevo extremo que queda tras jugar t en `side`
-        let newEnd;
-        if (!e || side === 'any') newEnd = t.b;        // salida: ambas puntas son la ficha
-        else if (side === 'L') newEnd = t.b === e.L ? t.a : t.b;
-        else newEnd = t.a === e.R ? t.b : t.a;
+        // puntas resultantes tras jugar t en `side`
+        let newL, newR;
+        if (!e || side === 'any') { newL = t.a; newR = t.b; }
+        else if (side === 'L') { newL = t.b === e.L ? t.a : t.b; newR = e.R; }
+        else { newR = t.a === e.R ? t.b : t.a; newL = e.L; }
 
         const reasons = [];
         let score = t.pips * 1.0;
@@ -217,12 +211,15 @@ window.DOMI = (() => {
         if (t.a === t.b) { score += 3; reasons.push('es mula: mejor soltarla temprano'); }
         if (!e) { score += 2; reasons.push('salida: marca tu palo fuerte'); }
 
-        score += scoreEnd(state, p, newEnd, reasons);
+        // la punta nueva pesa más; la que se conserva cuenta un poco
+        const freshEnd = side === 'R' ? newR : newL;
+        const keptEnd = side === 'R' ? newL : newR;
+        score += scoreEnd(state, p, freshEnd, reasons);
+        score += scoreEnd(state, p, keptEnd, []) * 0.4;
 
-        // si va a un lado, el OTRO extremo queda igual: ambos extremos cuentan un poco
-        if (e && side !== 'any') {
-          const kept = side === 'L' ? e.R : e.L;
-          score += scoreEnd(state, p, kept, []) * 0.4;
+        if (newL === newR) {
+          score += 1;
+          reasons.push(`dejas doble punta de ${newL} (presión/tranca)`);
         }
 
         cands.push({ tile: t, side: side === 'any' ? 'L' : side, score, reasons });
