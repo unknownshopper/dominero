@@ -321,7 +321,7 @@ body {
 .mesa {
   position: relative;
   aspect-ratio: 1 / 1;             /* mesa cuadrada, como la real */
-  width: min(780px, 150vw);        /* en móvil desborda la pantalla a propósito */
+  width: min(100%, 780px);         /* siempre dentro de la pantalla */
   flex-shrink: 0;
   margin-inline: auto;
   display: grid;
