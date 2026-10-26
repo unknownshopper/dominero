@@ -58,6 +58,7 @@ window.DOMI = (() => {
       result: null,         // {type:'domino'|'tranca', winnerTeam, points, detail}
       log: [],
       passesInRow: 0,
+      lastMove: null,       // {type:'play'|'pass', p, tile?, side?}
       // memoria de señales (lo que la mesa "sabe")
       misses: [new Set(), new Set(), new Set(), new Set()],   // palos donde pasó
       played: [ {}, {}, {}, {} ],                              // palos jugados por asiento
@@ -114,6 +115,7 @@ window.DOMI = (() => {
     hand.splice(idx, 1);
     registerPlayed(state, p, tile);
     state.passesInRow = 0;
+    state.lastMove = { type: 'play', p, tile, side: !e ? 'any' : side };
     const e2 = ends(state);
     state.log.push({
       t: 'play', p,
@@ -127,6 +129,7 @@ window.DOMI = (() => {
     const e = ends(state);
     if (e) { state.misses[p].add(e.L); state.misses[p].add(e.R); }
     state.passesInRow++;
+    state.lastMove = { type: 'pass', p };
     state.log.push({ t: 'pass', p, msg: `${SEAT_NAMES[p]} pasa (no tiene ${e.L} ni ${e.R}).` });
     checkEnd(state);
     if (!state.over) state.turn = nextOf(p);

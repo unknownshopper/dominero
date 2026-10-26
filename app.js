@@ -224,11 +224,30 @@
         ? `<span class="chain-empty">Arrastra tu ficha de salida al centro</span>${dz('L', 'pon aquí')}`
         : '<span class="chain-empty">Cadena vacía — sale la mula mayor.</span>';
     }
+    // índice de la ficha recién jugada (siempre queda en una punta)
+    const lm = game.lastMove;
+    const lastIdx = (lm && lm.type === 'play')
+      ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
+      : -1;
     const tiles = game.chain.map((t, i) => {
-      const isEnd = i === 0 || i === game.chain.length - 1;
-      return tileHTML(t, isEnd ? 'end' : '');
+      const cls = [
+        (i === 0 || i === game.chain.length - 1) ? 'end' : '',
+        i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)}` : ''
+      ].join(' ');
+      return tileHTML(t, cls);
     }).join('');
     return dz('L', `punta ${e.L}`) + tiles + dz('R', `punta ${e.R}`);
+  }
+
+  // letrero de la última jugada sobre la mesa
+  function lastMoveHTML() {
+    const lm = game.lastMove;
+    if (!lm) return '<div class="last-play"></div>';
+    const name = window.DOMI.SEAT_NAMES[lm.p];
+    if (lm.type === 'pass')
+      return `<div class="last-play pass">${name} pasó</div>`;
+    const teamCls = window.DOMI.teamOf(lm.p) === 0 ? 'mine' : 'theirs';
+    return `<div class="last-play ${teamCls}">${name} tiró ${miniTile(lm.tile.a, lm.tile.b)}</div>`;
   }
 
   function signalsHTML() {
@@ -267,7 +286,10 @@
           <div class="mesa">
             ${seatTop(2)}
             ${seatSide(3, 'left')}
-            <div class="chain-area"><div class="chain">${chainHTML()}</div></div>
+            <div class="chain-area">
+              ${lastMoveHTML()}
+              <div class="chain">${chainHTML()}</div>
+            </div>
             ${seatSide(1, 'right')}
             <div class="mesa-bottom">
               ${seatRow(0)}
