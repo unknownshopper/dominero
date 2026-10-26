@@ -572,7 +572,14 @@ body {
 .rivals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 560px) { .rivals { grid-template-columns: 1fr; } }
 
-.hand { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 6px 4px; }
+.hand {
+  display: flex;
+  flex-wrap: nowrap;          /* una sola fila siempre */
+  overflow-x: auto;           /* si no caben, desliza */
+  justify-content: safe center;
+  gap: 8px;
+  padding: 14px 6px 4px;
+}
 
 .move-log {
   font-size: .8rem;
