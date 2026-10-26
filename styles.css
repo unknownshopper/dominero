@@ -281,6 +281,8 @@ body {
   justify-content: center;
   flex-shrink: 0;
 }
+/* cara estirada a la casilla: las fichas quedan pegadas, sin aire entre ellas */
+.srow .domino .face { flex: 1; justify-content: center; }
 
 /* la ficha de punta es el blanco de soltado */
 .domino.drop-tile { cursor: copy; }
