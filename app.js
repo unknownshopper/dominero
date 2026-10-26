@@ -242,18 +242,24 @@
     const PER_ROW = 8, SLOTW = 72; // ancho de casilla fijo: las esquinas siempre conectan
     const n = game.chain.length;
     const cells = game.chain.map((t, i) => {
+      const rowIdx = Math.floor(i / PER_ROW);
+      const isCorner = i > 0 && i % PER_ROW === 0;
+      // en fila reversa la cadena va hacia la izquierda: espejar cada ficha
+      // para que las mitades que se tocan coincidan (la esquina va de caballo)
+      const mirror = rowIdx % 2 === 1 && !isCorner;
+      const disp = mirror ? { a: t.b, b: t.a } : t;
       const endSide = i === 0 ? 'L' : i === n - 1 ? 'R' : null;
       const cls = [
         endSide ? 'end' : '',
         myTurn && endSide ? 'drop-tile' : '',
         i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)} fly${lm.p}` : '',
-        (i > 0 && i % PER_ROW === 0) ? 'corner' : ''   // la ficha que dobla, de caballo
+        isCorner ? 'corner' : ''
       ].join(' ');
       const who = t.by !== undefined
         ? `data-who="la tiró ${names[t.by]}" data-team="${window.DOMI.teamOf(t.by)}"`
         : '';
       const side = (myTurn && endSide) ? `data-side="${endSide}"` : '';
-      return tileHTML(t, cls, `${who} ${side}`);
+      return tileHTML(disp, cls, `${who} ${side}`);
     });
 
     // serpiente: filas alternadas de ancho exacto -> esquinas alineadas
