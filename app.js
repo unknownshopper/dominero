@@ -9,8 +9,8 @@
 
   /* ---------- render de fichas ---------- */
 
-  const tileHTML = (t, cls = '') =>
-    `<span class="domino ${t.a === t.b ? 'double' : ''} ${cls}" data-id="${t.id ?? `${t.a}|${t.b}`}">
+  const tileHTML = (t, cls = '', extra = '') =>
+    `<span class="domino ${t.a === t.b ? 'double' : ''} ${cls}" data-id="${t.id ?? `${t.a}|${t.b}`}" ${extra}>
        <span>${die(t.a)}</span><span class="sep"></span><span>${die(t.b)}</span>
      </span>`;
 
@@ -229,12 +229,16 @@
     const lastIdx = (lm && lm.type === 'play')
       ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
       : -1;
+    const names = window.DOMI.SEAT_NAMES;
     const tiles = game.chain.map((t, i) => {
       const cls = [
         (i === 0 || i === game.chain.length - 1) ? 'end' : '',
         i === lastIdx ? `last t${window.DOMI.teamOf(lm.p)}` : ''
       ].join(' ');
-      return tileHTML(t, cls);
+      const who = t.by !== undefined
+        ? `data-who="la tiró ${names[t.by]}" data-team="${window.DOMI.teamOf(t.by)}"`
+        : '';
+      return tileHTML(t, cls, who);
     }).join('');
     return dz('L', `punta ${e.L}`) + tiles + dz('R', `punta ${e.R}`);
   }

@@ -100,15 +100,15 @@ window.DOMI = (() => {
     const e = ends(state);
 
     if (!e) {
-      state.chain.push({ a: tile.a, b: tile.b });
+      state.chain.push({ a: tile.a, b: tile.b, by: p });
     } else if (side === 'L') {
       // encajar por la punta izquierda
-      if (tile.b === e.L) state.chain.unshift({ a: tile.a, b: tile.b });
-      else if (tile.a === e.L) state.chain.unshift({ a: tile.b, b: tile.a });
+      if (tile.b === e.L) state.chain.unshift({ a: tile.a, b: tile.b, by: p });
+      else if (tile.a === e.L) state.chain.unshift({ a: tile.b, b: tile.a, by: p });
       else throw new Error('no pega en la izquierda');
     } else {
-      if (tile.a === e.R) state.chain.push({ a: tile.a, b: tile.b });
-      else if (tile.b === e.R) state.chain.push({ a: tile.b, b: tile.a });
+      if (tile.a === e.R) state.chain.push({ a: tile.a, b: tile.b, by: p });
+      else if (tile.b === e.R) state.chain.push({ a: tile.b, b: tile.a, by: p });
       else throw new Error('no pega en la derecha');
     }
 

@@ -299,6 +299,27 @@ body {
   100% { transform: scale(1); }
 }
 
+/* tooltip: quién tiró esta ficha */
+.domino[data-who] { position: relative; cursor: help; }
+.domino[data-who]:hover::after {
+  content: attr(data-who);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 20, 15, .95);
+  padding: 4px 12px;
+  border-radius: 7px;
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,.5);
+}
+.domino[data-who][data-team="0"]:hover::after { border: 1px solid #8fd6ff; color: #a8dcff; }
+.domino[data-who][data-team="1"]:hover::after { border: 1px solid #ff8a70; color: #ffb3a0; }
+
 .mesa-bottom { grid-column: 1 / -1; grid-row: 3; }
 .mesa-bottom .seat { background: transparent; border: none; padding: 2px 6px; }
 
