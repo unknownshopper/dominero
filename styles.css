@@ -510,7 +510,6 @@ body {
   /* rivales como rieles de borde: texto en vertical a lo alto de la mesa */
   .mesa-seat.side {
     align-self: stretch;
-    justify-self: center;
     width: 30px;
     margin-top: 0;
     padding: 10px 3px;
@@ -534,6 +533,9 @@ body {
     margin-left: 0; margin-top: -7px;
   }
   .mesa-seat.side .backs.vert .tile-back:first-child { margin-top: 0; }
+  /* pegados al marco de la mesa: libera el centro */
+  .mesa-seat.left { justify-self: start; margin-left: -7px; }
+  .mesa-seat.right { justify-self: end; margin-right: -7px; }
 }
 
 .domino.grabbable { cursor: grab; }
