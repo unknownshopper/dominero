@@ -13,6 +13,18 @@
   --card: #114f38;
   --card-line: #1d6b4d;
   --radius: 14px;
+  /* tamaño de casilla/ficha en la cadena (responsive) */
+  --slotw: 76px;
+  --pip: 7px;
+  --pgap: 2px;
+  --tpad: 8px;
+}
+
+@media (max-width: 700px) {
+  :root { --slotw: 62px; --pip: 5px; --pgap: 1.5px; --tpad: 5px; }
+}
+@media (max-width: 400px) {
+  :root { --slotw: 54px; --pip: 4px; --pgap: 1px; --tpad: 4px; }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -178,7 +190,7 @@ body {
   background: linear-gradient(180deg, #fbf8f2, #ece6da);
   border: 1px solid var(--tile-edge);
   border-radius: 8px;
-  padding: 8px;
+  padding: var(--tpad);
   color: var(--ink);
   box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
 }
@@ -187,15 +199,15 @@ body {
 
 .domino .half {
   display: inline-grid;
-  grid-template-columns: repeat(3, 7px);
-  grid-template-rows: repeat(3, 7px);
-  gap: 2px;
+  grid-template-columns: repeat(3, var(--pip));
+  grid-template-rows: repeat(3, var(--pip));
+  gap: var(--pgap);
 }
 .domino .pip { border-radius: 50%; }
 .domino .pip.on { background: #20242a; }
 
 /* mulas y esquinas de caballo: la cara gira 90°, como ficha real volteada */
-.srow .domino.double, .srow .domino.corner { height: 78px; justify-content: center; }
+.srow .domino.double, .srow .domino.corner { height: calc(var(--slotw) + 8px); justify-content: center; }
 .srow .domino.double .face, .srow .domino.corner .face { transform: rotate(90deg); }
 
 .domino.mini .face { padding: 4px 5px; border-radius: 5px; gap: 3px; }
@@ -224,7 +236,7 @@ body {
 .srow { display: flex; align-items: flex-end; gap: 0; }
 .srow.rev { flex-direction: row-reverse; }
 .srow .domino {
-  width: 72px;            /* mismo SLOTW que en app.js */
+  width: var(--slotw);
   box-sizing: border-box;
   justify-content: center;
   flex-shrink: 0;
@@ -266,6 +278,9 @@ body {
 
 .mesa {
   position: relative;
+  aspect-ratio: 1 / 1;             /* mesa cuadrada, como la real */
+  width: min(100%, 780px);
+  margin-inline: auto;
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr) 92px;
   grid-template-rows: auto minmax(160px, auto) auto;

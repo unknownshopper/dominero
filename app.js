@@ -238,7 +238,8 @@
       ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
       : -1;
     const names = window.DOMI.SEAT_NAMES;
-    const PER_ROW = 8, SLOTW = 72; // ancho de casilla fijo: las esquinas siempre conectan
+    // filas más cortas en pantalla chica; ancho de casilla vive en CSS (--slotw)
+    const PER_ROW = window.matchMedia('(max-width: 700px)').matches ? 5 : 8;
     const n = game.chain.length;
     const cells = game.chain.map((t, i) => {
       const rowIdx = Math.floor(i / PER_ROW);
@@ -265,7 +266,7 @@
     const rows = [];
     for (let i = 0; i < cells.length; i += PER_ROW) rows.push(cells.slice(i, i + PER_ROW));
     return rows.map((row, ri) =>
-      `<div class="srow${ri % 2 ? ' rev' : ''}" style="width:${PER_ROW * SLOTW}px">${row.join('')}</div>`
+      `<div class="srow${ri % 2 ? ' rev' : ''}" style="width:calc(var(--slotw) * ${PER_ROW})">${row.join('')}</div>`
     ).join('');
   }
 
