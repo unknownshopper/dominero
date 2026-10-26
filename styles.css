@@ -274,6 +274,7 @@ body {
 /* filas de la serpiente: casillas fijas -> esquinas siempre alineadas */
 .srow { display: flex; align-items: flex-end; gap: 0; }
 .srow.rev { flex-direction: row-reverse; }
+.srow.ctr { justify-content: center; }   /* primera fila parcial: cadena nace al centro */
 .srow .domino {
   width: var(--slotw);
   box-sizing: border-box;
@@ -366,6 +367,7 @@ body {
 }
 .chain-area .chain { width: auto; }
 
+.last-play:empty { display: none; }
 .last-play {
   font-size: .82rem;
   font-weight: 600;

@@ -198,8 +198,8 @@
     `<div class="backs ${vert ? 'vert' : ''}" title="${n} fichas">${
       '<span class="tile-back"></span>'.repeat(n)}</div>`;
 
-  // asiento superior: tu pareja
-  function seatTop(p) {
+  // asiento superior: tu pareja (y el letrero de la última jugada, a un costado)
+  function seatTop(p, extra = '') {
     const n = game.hands[p].length;
     const turn = game.turn === p && !game.over;
     return `<div class="mesa-seat top partner ${turn ? 'turn' : ''}">
@@ -207,6 +207,7 @@
       ${backsHTML(n, false)}
       <span class="count">${n}</span>
       ${turn ? '<span class="badge">TURNO</span>' : ''}
+      ${extra}
     </div>`;
   }
 
@@ -269,7 +270,8 @@
     const rows = [];
     for (let i = 0; i < cells.length; i += PER_ROW) rows.push(cells.slice(i, i + PER_ROW));
     return rows.map((row, ri) =>
-      `<div class="srow${ri % 2 ? ' rev' : ''}" style="width:calc(var(--slotw) * ${PER_ROW})">${row.join('')}</div>`
+      // mientras la cadena cabe en una sola fila parcial, centrarla en la mesa
+      `<div class="srow${ri % 2 ? ' rev' : ''}${row.length < PER_ROW && ri === 0 ? ' ctr' : ''}" style="width:calc(var(--slotw) * ${PER_ROW})">${row.join('')}</div>`
     ).join('');
   }
 
@@ -329,10 +331,9 @@
       <div class="table-wrap">
         <div class="table">
           <div class="mesa">
-            ${seatTop(2)}
+            ${seatTop(2, lastMoveHTML())}
             ${seatSide(3, 'left')}
             <div class="chain-area">
-              ${lastMoveHTML()}
               <div class="chain">${chainHTML()}</div>
             </div>
             ${seatSide(1, 'right')}
