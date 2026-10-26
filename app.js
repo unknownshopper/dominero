@@ -1,5 +1,5 @@
 /* ============================================================
-   Dominoza — app: navegación, vistas y controlador de práctica
+   Dominero — app: navegación, vistas y controlador de práctica
    ============================================================ */
 
 (() => {

@@ -1,5 +1,5 @@
 /* ============================================================
-   Dominoza — motor de dominó en parejas (doble-6, a la derecha)
+   Dominero — motor de dominó en parejas (doble-6, a la derecha)
    Asientos: 0 = tú (abajo), 1 = rival derecha, 2 = tu pareja,
              3 = rival izquierda. El turno avanza +1 (a la derecha).
    Equipos:   {0,2} vs {1,3}

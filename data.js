@@ -1,5 +1,5 @@
 /* ============================================================
-   Dominoza — contenido: lecciones, estrategia y quiz
+   Dominero — contenido: lecciones, estrategia y quiz
    Dominó en parejas · 4 jugadores · doble-6 · a la derecha
    ============================================================ */
 
