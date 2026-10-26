@@ -1,4 +1,4 @@
-const CACHE = 'dominoza-v2';
+const CACHE = 'dominero-v1';
 const ASSETS = [
   '.',
   'index.html',

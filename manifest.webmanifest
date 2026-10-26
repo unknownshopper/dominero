@@ -1,7 +1,7 @@
 {
-  "name": "Dominoza — Tutorial de dominó en parejas",
-  "short_name": "Dominoza",
-  "description": "Aprende a jugar dominó en parejas: reglas, estrategia, ejercicios y práctica contra bots con pistas explicadas.",
+  "name": "Dominero — Aprende dominó en parejas",
+  "short_name": "Dominero",
+  "description": "Aprende a jugar dominó en parejas: reglas, señales con tu socio, estrategia, quiz y práctica contra bots en una mesa real.",
   "lang": "es",
   "start_url": ".",
   "scope": ".",
