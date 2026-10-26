@@ -341,14 +341,17 @@
               ${seatRow(0)}
               <div class="hand">${handHTML()}</div>
             </div>
+            ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
+              ? `<div class="mesa-pass">
+                   <span>No pegas ni ${e ? `${e.L} ni ${e.R}` : '—'}</span>
+                   <button class="btn" id="btn-pass">Pasar</button>
+                 </div>` : ''}
             ${game.over ? endOverlay() : ''}
           </div>
           ${e ? `<p style="font-size:.8rem;color:var(--muted)">Puntas abiertas:
                 <b style="color:#ffe1a1">${e.L}</b> (izq) · <b style="color:#ffe1a1">${e.R}</b> (der)</p>` : ''}
           <div id="side-picker"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
-              ? '<button class="btn" id="btn-pass">Pasar (no tienes jugada)</button>' : ''}
             ${myTurn ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
             ${!game.over ? '<button class="btn ghost small" id="btn-reset">Reiniciar</button>' : ''}
           </div>

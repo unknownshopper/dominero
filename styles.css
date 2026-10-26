@@ -417,6 +417,22 @@ body {
 .domino[data-who][data-team="0"]:hover::after { border: 1px solid #8fd6ff; color: #a8dcff; }
 .domino[data-who][data-team="1"]:hover::after { border: 1px solid #ff8a70; color: #ffb3a0; }
 
+/* overlay de paso: aparece en medio de la mesa cuando no tienes jugada */
+.mesa-pass {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, .3);
+  border-radius: 16px;
+  color: #ffe1a1;
+  font-weight: 600;
+}
+
 .mesa-bottom { grid-column: 1 / -1; grid-row: 3; }
 .mesa-bottom .seat { background: transparent; border: none; padding: 2px 6px; }
 
