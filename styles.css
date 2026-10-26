@@ -436,6 +436,25 @@ body {
   font-weight: 600;
 }
 
+/* tarjeta de oportunidad: aparece sobre la mesa y pide confirmación */
+.opp-card {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  width: min(88%, 320px);
+  background: linear-gradient(160deg, #163f2f, #0b2c1f);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+  animation: oppPop .25s ease;
+}
+.opp-card b { color: var(--accent); font-size: 1rem; display: block; margin-bottom: 6px; }
+.opp-card p { color: #dff0e7; font-size: .86rem; line-height: 1.45; margin-bottom: 10px; }
+@keyframes oppPop { from { transform: translate(-50%, -50%) scale(.85); opacity: 0; } }
+
 .mesa-bottom { grid-column: 1 / -1; grid-row: 3; }
 .mesa-bottom #hint-slot { width: min(100%, 560px); margin: 8px auto 0; }
 .mesa-bottom .seat { background: transparent; border: none; padding: 2px 6px; }

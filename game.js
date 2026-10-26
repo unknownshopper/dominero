@@ -259,7 +259,7 @@ window.DOMI = (() => {
           reasons.push('recta final: descarga las fichas pesadas');
         }
 
-        cands.push({ tile: t, side: side === 'any' ? 'L' : side, score, reasons });
+        cands.push({ tile: t, side: side === 'any' ? 'L' : side, score, reasons, newL, newR });
       }
     }
     return cands.sort((x, y) => y.score - x.score);

@@ -171,7 +171,7 @@
   /* ---------- práctica ---------- */
 
   const HUMAN = 0;
-  let game = null, selected = null, busy = false, autoHintTimer = null;
+  let game = null, selected = null, busy = false, autoHintTimer = null, lastOppKey = null;
 
   function renderPractice() {
     game = window.DOMI.newGame();
@@ -429,23 +429,59 @@
     }
   }
 
+  // detecta si el momento merece una notificación que el jugador deba aceptar
+  function opportunityOf(top) {
+    const g = game, nm = window.DOMI.SEAT_NAMES;
+    const sideTxt = top.side === 'L' ? 'izquierda' : 'derecha';
+    const lbl = `[${top.tile.a}|${top.tile.b}]`;
+    const nxt = window.DOMI.nextOf(HUMAN), par = window.DOMI.partnerOf(HUMAN);
+    if (g.hands[HUMAN].length === 1)
+      return { t: '🏆 ¡DOMINÓ a la vista!', m: `Suelta ${lbl} por la ${sideTxt} y ganas la mano. Que se escuche en toda la cuadra.` };
+    if (g.hands[nxt].length <= 2 && (g.misses[nxt].has(top.newL) || g.misses[nxt].has(top.newR)))
+      return { t: '🚫 A ahogarlo', m: `${nm[nxt]} anda con ${g.hands[nxt].length} ficha(s). Tu ${lbl} le deja punta que no tiene: pásala y se ahoga.` };
+    if (g.hands[par].length <= 2 && ((g.played[par][top.newL] || 0) >= 1 || (g.played[par][top.newR] || 0) >= 1))
+      return { t: '🤝 Tu pareja anda corta', m: `Solo le quedan ${g.hands[par].length} ficha(s). Déjale punta viva con el ${lbl} por la ${sideTxt}.` };
+    if (top.newL === top.newR && g.chain.length >= 8)
+      return { t: '🔒 Olor a tranca', m: `Con el ${lbl} dejas doble punta de ${top.newL}. Si la mesa se cierra, cuentan los puntos.` };
+    if (top.tile.pips >= 11 && g.chain.length >= 8)
+      return { t: '⚖️ Suelta el peso', m: `El ${lbl} pesa ${top.tile.pips} puntos si trancan. Mejor ahora.` };
+    return null;
+  }
+
+  // tarjeta de oportunidad sobre la mesa: hay que aceptarla para seguir
+  function showOpportunity(o) {
+    const mesa = view.querySelector('.mesa');
+    if (!mesa) return;
+    mesa.querySelector('.opp-card')?.remove();
+    mesa.insertAdjacentHTML('beforeend',
+      `<div class="opp-card"><b>${o.t}</b><p>${o.m}</p>
+       <button class="btn small" id="opp-ok">¡Entendido!</button></div>`);
+    view.querySelector('#opp-ok').onclick = ev => ev.target.closest('.opp-card').remove();
+  }
+
   // marca la jugada más fuerte y explica por qué
   function autoHint() {
     if (!game || game.over || busy || game.turn !== HUMAN) return;
-    const top = window.DOMI.hintsFor(game, HUMAN)[0];
+    const top = window.DOMI.rankMoves(game, HUMAN)[0];
     if (!top) return;
+    const lbl = `[${top.tile.a}|${top.tile.b}]`;
+    const sideTxt = !game.chain.length ? 'salida' : top.side === 'L' ? 'izquierda' : 'derecha';
     const winning = game.hands[HUMAN].length === 1;
     const slot = $('#hint-slot');
     if (slot && !slot.innerHTML) slot.innerHTML = `<div class="hint-box auto">
       ${winning
-        ? `🏆 <b>Suelta ${top.label} y grita ¡DOMINÓ!</b>${top.sideLabel === 'salida' ? '' : ' — va por la ' + top.sideLabel}`
-        : `💡 <b>Sugerencia:</b> ${top.label}${top.sideLabel === 'salida' ? ' de salida' : ' por la ' + top.sideLabel} — ${top.reasons[0]}`}</div>`;
+        ? `🏆 <b>Suelta ${lbl} y grita ¡DOMINÓ!</b>${sideTxt === 'salida' ? '' : ' — va por la ' + sideTxt}`
+        : `💡 <b>Sugerencia:</b> ${lbl}${sideTxt === 'salida' ? ' de salida' : ' por la ' + sideTxt} — ${top.reasons[0]}`}</div>`;
     const el = view.querySelector(`.hand [data-tile="${top.tile.id}"] .domino`);
     if (el) el.classList.add('suggested');
     // y marca en la mesa la punta donde pegarla
-    const endEl = top.sideLabel === 'salida' ? null
+    const endEl = sideTxt === 'salida' ? null
       : view.querySelector(`.chain .domino[data-side="${top.side}"]`);
     if (endEl) endEl.classList.add('suggest-end');
+    // oportunidad -> notificación que hay que aceptar (una por turno)
+    const key = `${game.turn}|${game.chain.length}`;
+    const opp = opportunityOf(top);
+    if (opp && lastOppKey !== key) { lastOppKey = key; showOpportunity(opp); }
   }
 
   // telón de fin de mano: ganador, detalle y revelación de manos
