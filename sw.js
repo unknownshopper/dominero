@@ -1,4 +1,4 @@
-const CACHE = 'dominero-v1';
+const CACHE = 'dominero-v2';
 const ASSETS = [
   '.',
   'index.html',
@@ -23,13 +23,15 @@ self.addEventListener('activate', e => {
   );
 });
 
+// network-first: siempre la versión más reciente; caché solo como respaldo offline
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+    fetch(e.request).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return res;
-    }).catch(() => caches.match('index.html')))
+    }).catch(() =>
+      caches.match(e.request).then(hit => hit || caches.match('index.html')))
   );
 });
