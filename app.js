@@ -507,7 +507,8 @@
       flashMsg(`Por ${side === 'L' ? 'la izquierda' : 'la derecha'} necesitas un ${side === 'L' ? e.L : e.R}`);
       return false;
     }
-    if (!side && sides.length > 1) { showSidePicker(tile); return true; }
+    // solo preguntar lado si las puntas difieren: con puntas iguales da lo mismo
+    if (!side && sides.length > 1 && e.L !== e.R) { showSidePicker(tile); return true; }
     playHuman(tile, side || sides[0]);
     return true;
   }
