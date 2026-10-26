@@ -191,6 +191,20 @@ window.DOMI = (() => {
       s += 1.5;
       reasons.push(`conservas continuidad en el ${suit}`);
     }
+    if ((state.played[nxt][suit] || 0) >= 2) {
+      s -= 3;
+      reasons.push(`el de tu derecha va cargado al ${suit}: le das cuerda`);
+    }
+    // rival a punto de dominar: no le abras una punta que no haya pasado
+    if (state.hands[nxt].length <= 2 && !state.misses[nxt].has(suit)) {
+      s -= 3;
+      reasons.push(`el de tu derecha anda con ${state.hands[nxt].length} ficha(s): no le regales punta`);
+    }
+    // pareja corta de fichas: ayúdale a cerrar dejándole su palo
+    if (state.hands[par].length <= 2 && (state.played[par][suit] || 0) >= 1) {
+      s += 2;
+      reasons.push(`tu pareja anda corta: déjale punta en ${suit}`);
+    }
     return s;
   }
 
@@ -223,6 +237,23 @@ window.DOMI = (() => {
         if (newL === newR) {
           score += 1;
           reasons.push(`dejas doble punta de ${newL} (presión/tranca)`);
+          // si tu equipo va más ligero de puntos, una tranca te conviene
+          const mine = handPips(state.hands[p]) + handPips(state.hands[partnerOf(p)]);
+          const theirs = state.hands.reduce((sum, h, i) =>
+            sum + (teamOf(i) !== teamOf(p) ? handPips(h) : 0), 0);
+          if (mine <= theirs) {
+            score += 2;
+            reasons.push('tu equipo va ligero de puntos: cerrar te favorece');
+          }
+        }
+
+        // hambre de ganar: cerrar la mano o descargar peso en la recta final
+        if (state.hands[p].length === 1) {
+          score += 60;
+          reasons.push('¡con esta dominas la mano!');
+        } else if (state.hands[p].length <= 3 && t.pips >= 8) {
+          score += t.pips * 0.7;
+          reasons.push('recta final: descarga las fichas pesadas');
         }
 
         cands.push({ tile: t, side: side === 'any' ? 'L' : side, score, reasons });
