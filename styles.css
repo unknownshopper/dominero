@@ -240,6 +240,26 @@ body {
 }
 .hint-box.auto { border-color: var(--good); }
 
+/* la punta de la mesa donde la sugerencia dice ponerla */
+.domino.suggest-end .face {
+  outline: 3px solid var(--good);
+  outline-offset: 2px;
+  animation: pulseGlow 1s ease-in-out infinite;
+}
+.domino.suggest-end::after {
+  content: 'ponla aquí';
+  position: absolute;
+  top: -20px; left: 50%;
+  transform: translateX(-50%);
+  font-size: .68rem;
+  font-weight: 700;
+  color: #0b3d28;
+  background: var(--good);
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 .chain {
   display: flex;
   flex-direction: column;

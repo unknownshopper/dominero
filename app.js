@@ -436,6 +436,10 @@
       — ${top.reasons[0]}</div>`;
     const el = view.querySelector(`.hand [data-tile="${top.tile.id}"] .domino`);
     if (el) el.classList.add('suggested');
+    // y marca en la mesa la punta donde pegarla
+    const endEl = top.sideLabel === 'salida' ? null
+      : view.querySelector(`.chain .domino[data-side="${top.side}"]`);
+    if (endEl) endEl.classList.add('suggest-end');
   }
 
   // telón de fin de mano: ganador, detalle y revelación de manos
