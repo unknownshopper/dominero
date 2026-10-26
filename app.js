@@ -434,10 +434,12 @@
     if (!game || game.over || busy || game.turn !== HUMAN) return;
     const top = window.DOMI.hintsFor(game, HUMAN)[0];
     if (!top) return;
+    const winning = game.hands[HUMAN].length === 1;
     const slot = $('#hint-slot');
     if (slot && !slot.innerHTML) slot.innerHTML = `<div class="hint-box auto">
-      💡 <b>Sugerencia:</b> ${top.label}${top.sideLabel === 'salida' ? ' de salida' : ' por la ' + top.sideLabel}
-      — ${top.reasons[0]}</div>`;
+      ${winning
+        ? `🏆 <b>Suelta ${top.label} y grita ¡DOMINÓ!</b>${top.sideLabel === 'salida' ? '' : ' — va por la ' + top.sideLabel}`
+        : `💡 <b>Sugerencia:</b> ${top.label}${top.sideLabel === 'salida' ? ' de salida' : ' por la ' + top.sideLabel} — ${top.reasons[0]}`}</div>`;
     const el = view.querySelector(`.hand [data-tile="${top.tile.id}"] .domino`);
     if (el) el.classList.add('suggested');
     // y marca en la mesa la punta donde pegarla
@@ -507,8 +509,10 @@
       flashMsg(`Por ${side === 'L' ? 'la izquierda' : 'la derecha'} necesitas un ${side === 'L' ? e.L : e.R}`);
       return false;
     }
-    // solo preguntar lado si las puntas difieren: con puntas iguales da lo mismo
-    if (!side && sides.length > 1 && e.L !== e.R) { showSidePicker(tile); return true; }
+    // preguntar lado solo si importa: puntas distintas y no es tu ficha de cierre
+    if (!side && sides.length > 1 && e.L !== e.R && game.hands[HUMAN].length > 1) {
+      showSidePicker(tile); return true;
+    }
     playHuman(tile, side || sides[0]);
     return true;
   }

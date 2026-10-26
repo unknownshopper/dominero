@@ -250,7 +250,7 @@ window.DOMI = (() => {
         // hambre de ganar: cerrar la mano o descargar peso en la recta final
         if (state.hands[p].length === 1) {
           score += 60;
-          reasons.push('¡con esta dominas la mano!');
+          reasons.unshift('¡cierras la mano — DOMINÓ!');
         } else if (state.hands[p].length <= 3 && t.pips >= 8) {
           score += t.pips * 0.7;
           reasons.push('recta final: descarga las fichas pesadas');
