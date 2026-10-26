@@ -399,12 +399,44 @@
     </div>`;
   }
 
+  // aviso flotante breve
+  let flashTimer;
+  function flashMsg(text) {
+    let el = document.getElementById('flash-msg');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'flash-msg';
+      document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  function shakeTile(id) {
+    const el = view.querySelector(`.hand [data-tile="${id}"] .domino`);
+    if (!el) return;
+    el.classList.remove('shake');
+    void el.offsetWidth;           // reinicia la animación
+    el.classList.add('shake');
+  }
+
   // Intenta jugar una ficha; `side` opcional ('L'/'R'). Devuelve true si se jugó o se pidió lado.
   function attemptPlay(tile, side) {
     const mv = window.DOMI.legalMoves(game, HUMAN).find(m => m.tile === tile);
-    if (!mv) return false;
+    const e = window.DOMI.ends(game);
+    if (!mv) {
+      shakeTile(tile.id);
+      flashMsg(`[${tile.a}|${tile.b}] no pega — las puntas son ${e ? `${e.L} y ${e.R}` : '—'}`);
+      return false;
+    }
     const sides = mv.side === 'both' ? ['L', 'R'] : [mv.side === 'any' ? 'L' : mv.side];
-    if (side && !sides.includes(side)) return false;
+    if (side && !sides.includes(side)) {
+      shakeTile(tile.id);
+      flashMsg(`Por ${side === 'L' ? 'la izquierda' : 'la derecha'} necesitas un ${side === 'L' ? e.L : e.R}`);
+      return false;
+    }
     if (!side && sides.length > 1) { showSidePicker(tile); return true; }
     playHuman(tile, side || sides[0]);
     return true;
