@@ -251,7 +251,7 @@
     });
 
     // serpiente: filas alternadas (bustrofedón), dz en los extremos reales
-    const PER_ROW = 6;
+    const PER_ROW = 8;
     const rows = [];
     for (let i = 0; i < cells.length; i += PER_ROW) rows.push(cells.slice(i, i + PER_ROW));
     return rows.map((row, ri) => {
