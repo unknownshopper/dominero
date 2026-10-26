@@ -5,16 +5,25 @@
 (() => {
   const $ = s => document.querySelector(s);
   const view = $('#view');
-  const die = n => String.fromCodePoint(0x2680 + (Number(n) || 0)); // ⚀..⚅
+  /* ---------- render de fichas (puntos reales, como dominó) ---------- */
 
-  /* ---------- render de fichas ---------- */
+  // posiciones de puntos en una cuadrícula 3x3 (índices 1-9)
+  const PIPS = {
+    0: [], 1: [5], 2: [1, 9], 3: [1, 5, 9],
+    4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9]
+  };
+
+  const halfHTML = n =>
+    `<span class="half">${[1,2,3,4,5,6,7,8,9]
+      .map(i => `<i class="pip${PIPS[n].includes(i) ? ' on' : ''}"></i>`).join('')}</span>`;
 
   const tileHTML = (t, cls = '', extra = '') =>
     `<span class="domino ${t.a === t.b ? 'double' : ''} ${cls}" data-id="${t.id ?? `${t.a}|${t.b}`}" ${extra}>
-       <span>${die(t.a)}</span><span class="sep"></span><span>${die(t.b)}</span>
+       ${halfHTML(t.a)}<span class="sep"></span>${halfHTML(t.b)}
      </span>`;
 
-  const miniTile = (a, b) => `<span class="domino mini">${die(a)}<span class="sep"></span>${die(b)}</span>`;
+  const miniTile = (a, b) =>
+    `<span class="domino mini">${halfHTML(a)}<span class="sep"></span>${halfHTML(b)}</span>`;
 
   /* ---------- navegación ---------- */
 

@@ -171,25 +171,33 @@ body {
 
 .domino {
   display: inline-flex;
-  align-items: center;
-  gap: 2px;
+  align-items: stretch;
+  gap: 4px;
   background: linear-gradient(180deg, #fffdf6, var(--tile));
   border: 1px solid var(--tile-edge);
   border-radius: 7px;
-  padding: 3px 8px;
-  font-size: 1.25rem;
+  padding: 6px 8px;
   color: var(--ink);
   box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
   user-select: none;
-  line-height: 1;
 }
 
-.domino .sep { width: 1px; align-self: stretch; background: var(--tile-edge); margin: 0 2px; }
+.domino .sep { width: 1.5px; align-self: stretch; background: var(--tile-edge); }
 
-.domino.double { flex-direction: column; padding: 5px 8px; }
-.domino.double .sep { width: auto; height: 1px; }
+.domino .half {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 6px);
+  grid-template-rows: repeat(3, 6px);
+  gap: 1.5px;
+}
+.domino .pip { border-radius: 50%; }
+.domino .pip.on { background: #20242a; }
 
-.domino.mini { font-size: .95rem; padding: 2px 6px; border-radius: 5px; }
+.domino.double { flex-direction: column; align-items: center; }
+.domino.double .sep { width: auto; height: 1.5px; align-self: stretch; }
+
+.domino.mini { padding: 4px 5px; border-radius: 5px; gap: 3px; }
+.domino.mini .half { grid-template-columns: repeat(3, 4px); grid-template-rows: repeat(3, 4px); gap: 1px; }
 
 .hand .domino { cursor: pointer; transition: transform .12s, box-shadow .12s; }
 .hand .domino:hover { transform: translateY(-6px); box-shadow: 0 6px 10px rgba(0, 0, 0, .45); }
