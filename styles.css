@@ -568,6 +568,30 @@ body {
 .table-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
 @media (max-width: 880px) { .table-wrap { grid-template-columns: 1fr; } }
 
+/* switch Tutorial / PRO */
+.mode-switch { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 8px; }
+.btn.tiny { padding: 4px 12px; font-size: .72rem; border-radius: 999px; }
+
+/* escenarios de mesa PRO */
+.scn-list { display: grid; gap: 10px; margin: 14px 0; }
+.scn {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .05);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: border-color .15s, background .15s;
+}
+.scn:hover { border-color: var(--accent); background: rgba(242, 177, 52, .08); }
+.scn b { color: var(--accent); font-size: 1rem; }
+.scn span { font-size: .8rem; color: var(--muted); }
+.scn em { font-size: .82rem; color: #dff0e7; font-style: normal; }
+
 .table { display: flex; flex-direction: column; gap: 14px; }
 
 .seat {

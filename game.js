@@ -8,6 +8,18 @@
 window.DOMI = (() => {
 
   const SEAT_NAMES = ['Tú', 'Rival der.', 'Tu pareja', 'Rival izq.'];
+  let SKILL = 'normal';                    // facil | normal | dificil
+
+  // ajusta la mesa: nombres de los 3 asientos ajenos + nivel de los bots
+  function configure(opts = {}) {
+    if (opts.names) {
+      SEAT_NAMES[1] = opts.names[0];       // rival de tu derecha
+      SEAT_NAMES[2] = opts.names[1];       // tu pareja
+      SEAT_NAMES[3] = opts.names[2];       // rival de tu izquierda
+    }
+    if (opts.skill) SKILL = opts.skill;
+  }
+
   const teamOf = p => p % 2;              // 0 -> equipo A (0,2) · 1 -> equipo B (1,3)
   const nextOf = p => (p + 1) % 4;        // juego a la derecha
   const partnerOf = p => (p + 2) % 4;
@@ -268,11 +280,16 @@ window.DOMI = (() => {
   function botMove(state, p) {
     const ranked = rankMoves(state, p);
     if (!ranked.length) return null;
-    // poco ruido para que no sea robótico
     const top = ranked[0];
+    if (SKILL === 'facil') {
+      // novato: elige casi al azar entre las 3 primeras, sin leer la mesa
+      const pool = ranked.slice(0, 3);
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    if (SKILL === 'dificil') return top;   // parque viejo: siempre la mejor
+    // normal: ruido leve para que no sea robótico
     const alt = ranked[1];
-    const pick = (alt && Math.random() < 0.15 && alt.score > top.score - 3) ? alt : top;
-    return pick;
+    return (alt && Math.random() < 0.15 && alt.score > top.score - 3) ? alt : top;
   }
 
   // Ejecuta el turno de un bot. Devuelve descripción legible.
@@ -333,7 +350,7 @@ Fichas restantes: yo ${state.hands[0].length}, rivalDer ${state.hands[1].length}
 
   return {
     SEAT_NAMES, teamOf, nextOf, partnerOf,
-    newGame, ends, legalMoves, placeTile, pass, botTurn,
+    newGame, ends, legalMoves, placeTile, pass, botTurn, configure,
     rankMoves, hintsFor, signals, describe, handPips, countSuit
   };
 })();

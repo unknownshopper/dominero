@@ -173,12 +173,79 @@
   const HUMAN = 0;
   let game = null, selected = null, busy = false, autoHintTimer = null, lastOppKey = null;
 
+  /* ---- modo PRO: sin ayudas, con escenarios de mesa ---- */
+  const SCENARIOS = [
+    { label: 'Fácil',   blurb: 'de barrio, primera vez',        skill: 'facil',
+      names: ['Chencho', 'Mila', 'El Tuerto'] },
+    { label: 'Normal',  blurb: 'domingo familiar',              skill: 'normal',
+      names: ['La Negra', 'Pelón', 'Chiquis'] },
+    { label: 'Difícil', blurb: 'los viejitos del parque',       skill: 'dificil',
+      names: ['Don Tito', 'La Doña', 'El Profesor'] },
+  ];
+  let proMode = localStorage.getItem('dominero_mode') === 'pro';
+  let scenario = null;
+
+  function drawScenarioPicker() {
+    view.innerHTML = `
+      <div class="panel" style="max-width:580px">
+        <h2>Modo PRO</h2>
+        <p class="note">Sin pistas, sin alertas, sin tarjetas de oportunidad.
+          Tú y la mesa. ¿Con quién te sientas?</p>
+        <div class="scn-list">
+          ${SCENARIOS.map((s, i) => `
+            <button class="scn" data-i="${i}">
+              <b>${s.label}</b>
+              <span>${s.blurb}</span>
+              <em>${s.names[0]} · ${s.names[1]} · ${s.names[2]}</em>
+            </button>`).join('')}
+        </div>
+        <button class="btn ghost small" id="back-tut">← Volver a Tutorial</button>
+      </div>`;
+    view.querySelectorAll('.scn').forEach(b => b.onclick = () => {
+      scenario = SCENARIOS[+b.dataset.i];
+      window.DOMI.configure({ names: scenario.names, skill: scenario.skill });
+      renderPractice();
+    });
+    $('#back-tut').onclick = () => {
+      proMode = false;
+      localStorage.setItem('dominero_mode', 'tut');
+      renderPractice();
+    };
+  }
+
   function renderPractice() {
+    if (!proMode)
+      window.DOMI.configure({ names: ['Rival der.', 'Tu pareja', 'Rival izq.'], skill: 'normal' });
+    if (proMode && !scenario) { drawScenarioPicker(); return; }
     game = window.DOMI.newGame();
     selected = null;
     busy = false;
     drawTable();
     maybeBots();
+    // análisis de la mano de salida (solo tutorial)
+    if (!proMode) {
+      const a = analyzeHand();
+      if (a) setTimeout(() => { if (game && !game.over) showOpportunity(a); }, 700);
+    }
+  }
+
+  // lectura rápida de tus 7 fichas: palo fuerte, huecos, mulas y peso
+  function analyzeHand() {
+    const hand = game.hands[HUMAN];
+    const suits = [0, 0, 0, 0, 0, 0, 0];
+    hand.forEach(t => { suits[t.a]++; suits[t.b]++; });
+    const best = suits.indexOf(Math.max(...suits));
+    const missing = suits.map((n, i) => [n, i]).filter(([n]) => n === 0).map(([, i]) => i);
+    const doubles = hand.filter(t => t.a === t.b).length;
+    const pips = window.DOMI.handPips(hand);
+    const tips = [];
+    if (suits[best] >= 3) tips.push(`tu palo fuerte es el ${best} (${suits[best]} fichas): cultiva esas puntas`);
+    if (missing.length) tips.push(`no tienes ${missing.join(' ni ')}: cuídate si caen en punta`);
+    if (doubles >= 3) tips.push('cargas mulas: suéltalas apenas abras su palo');
+    tips.push(pips >= 40
+      ? `mano pesada (${pips} pts): bájale a las gordas desde ya`
+      : `mano ligera (${pips} pts): puedes jugar agresivo`);
+    return { t: '📋 Tu mano dice…', m: tips.join('. ') + '.' };
   }
 
   function seatRow(p) {
@@ -203,7 +270,7 @@
     const n = game.hands[p].length;
     const turn = game.turn === p && !game.over;
     return `<div class="mesa-seat top partner ${turn ? 'turn' : ''}">
-      <span class="name">Tu pareja</span>
+      <span class="name">${window.DOMI.SEAT_NAMES[2]}</span>
       ${backsHTML(n, false)}
       <span class="count">${n}</span>
       ${turn ? '<span class="badge">TURNO</span>' : ''}
@@ -330,6 +397,10 @@
     view.innerHTML = `
       <div class="table-wrap">
         <div class="table">
+          <div class="mode-switch">
+            <button class="btn tiny ${proMode ? 'ghost' : ''}" id="mode-tut">Tutorial</button>
+            <button class="btn tiny ${proMode ? '' : 'ghost'}" id="mode-pro">PRO${scenario ? ' · ' + scenario.label : ''}</button>
+          </div>
           <div class="mesa">
             ${seatTop(2, lastMoveHTML())}
             ${seatSide(3, 'left')}
@@ -353,9 +424,9 @@
                 <b style="color:#ffe1a1">${e.L}</b> (izq) · <b style="color:#ffe1a1">${e.R}</b> (der)</p>` : ''}
           <div id="side-picker"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            ${myTurn ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
+            ${myTurn && !proMode ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
             ${!game.over ? '<button class="btn ghost small" id="btn-reset">Reiniciar</button>' : ''}
-          </iv id="hint-slot">${hintHTML}</div>
+          </div>
           <details class="ollama">
             <summary>🤖 Pista con Ollama (opcional, modelo local)</summary>
             <div class="row">
@@ -422,9 +493,15 @@
     const bo = $('#btn-ollama'); if (bo) bo.onclick = askOllama;
     const ml = $('#mlog'); if (ml) ml.scrollTop = ml.scrollHeight;
 
-    // sugerencia automática tras 2s pensando en tu turno
+    // switch Tutorial/PRO
+    const mt = $('#mode-tut');
+    if (mt) mt.onclick = () => { proMode = false; localStorage.setItem('dominero_mode', 'tut'); renderPractice(); };
+    const mp = $('#mode-pro');
+    if (mp) mp.onclick = () => { proMode = true; scenario = null; localStorage.setItem('dominero_mode', 'pro'); renderPractice(); };
+
+    // sugerencia automática tras 2s pensando en tu turno (solo tutorial)
     clearTimeout(autoHintTimer);
-    if (myTurn && window.DOMI.legalMoves(game, HUMAN).length) {
+    if (myTurn && !proMode && window.DOMI.legalMoves(game, HUMAN).length) {
       autoHintTimer = setTimeout(autoHint, 2000);
     }
   }
