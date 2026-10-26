@@ -340,6 +340,7 @@
             <div class="mesa-bottom">
               ${seatRow(0)}
               <div class="hand">${handHTML()}</div>
+              <div id="hint-slot">${hintHTML}</div>
             </div>
             ${myTurn && window.DOMI.legalMoves(game, HUMAN).length === 0
               ? `<div class="mesa-pass">
@@ -354,8 +355,7 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             ${myTurn ? '<button class="btn small" id="btn-hint">💡 Pista</button>' : ''}
             ${!game.over ? '<button class="btn ghost small" id="btn-reset">Reiniciar</button>' : ''}
-          </div>
-          <div id="hint-slot">${hintHTML}</div>
+          </iv id="hint-slot">${hintHTML}</div>
           <details class="ollama">
             <summary>🤖 Pista con Ollama (opcional, modelo local)</summary>
             <div class="row">

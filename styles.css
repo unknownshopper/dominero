@@ -434,6 +434,7 @@ body {
 }
 
 .mesa-bottom { grid-column: 1 / -1; grid-row: 3; }
+.mesa-bottom #hint-slot { width: min(100%, 560px); margin: 8px auto 0; }
 .mesa-bottom .seat { background: transparent; border: none; padding: 2px 6px; }
 
 /* telón de fin de mano */
