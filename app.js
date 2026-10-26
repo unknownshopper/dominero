@@ -238,8 +238,11 @@
       ? (lm.side === 'L' || lm.side === 'any' ? 0 : game.chain.length - 1)
       : -1;
     const names = window.DOMI.SEAT_NAMES;
-    // filas más cortas en pantalla chica; ancho de casilla vive en CSS (--slotw)
-    const PER_ROW = window.matchMedia('(max-width: 700px)').matches ? 5 : 8;
+    // fichas por fila: las que quepan en el ancho real de la mesa
+    const w = Math.min(window.innerWidth, 1280);
+    const avail = window.innerWidth <= 880 ? w - 130 : Math.min(780, w - 380) - 44;
+    const slot = window.innerWidth <= 400 ? 54 : window.innerWidth <= 700 ? 62 : 76;
+    const PER_ROW = Math.max(4, Math.floor(avail / slot));
     const n = game.chain.length;
     const cells = game.chain.map((t, i) => {
       const rowIdx = Math.floor(i / PER_ROW);
@@ -507,9 +510,9 @@
     const e = window.DOMI.ends(game);
     $('#side-picker').innerHTML = `
       <div class="side-picker">
-        <span class="lbl">[${tile.a}|${tile.b}] pega en ambas. ¿Dónde la pones?</span>
-        <button class="btn small" data-side="L">◀ Punta ${e.L} (izq)</button>
-        <button class="btn small" data-side="R">Punta ${e.R} (der) ▶</button>
+        <span class="lbl">[${tile.a}|${tile.b}] pega en ambas puntas (${e.L} · ${e.R}). ¿Qué punta quieres dejar?</span>
+        <button class="btn small" data-side="L">◀ Izq: deja punta ${tile.b === e.L ? tile.a : tile.b}</button>
+        <button class="btn small" data-side="R">Der: deja punta ${tile.a === e.R ? tile.b : tile.a} ▶</button>
       </div>`;
     view.querySelectorAll('#side-picker [data-side]').forEach(b => {
       b.onclick = () => playHuman(tile, b.dataset.side);
