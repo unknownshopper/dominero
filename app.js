@@ -296,7 +296,7 @@
         myTurn && ok ? '' : 'unplayable',
         selected === t ? 'selected' : ''
       ].join(' ');
-      const drag = myTurn && ok ? 'draggable="true"' : '';
+      const drag = myTurn ? 'draggable="true"' : '';  // todas arrastrables: si no pega, el juego explica
       return `<span data-tile="${t.id}" ${drag}>${tileHTML(t, cls + (myTurn && ok ? ' grabbable' : ''))}</span>`;
     }).join('');
   }
@@ -358,16 +358,30 @@
         ev.dataTransfer.effectAllowed = 'move';
       });
     });
+    // soltar sobre una punta elige ese lado explícitamente
     view.querySelectorAll('.dropzone, .chain .drop-tile').forEach(z => {
-      z.addEventListener('dragover', ev => { ev.preventDefault(); z.classList.add('over'); });
+      z.addEventListener('dragover', ev => { ev.preventDefault(); ev.stopPropagation(); z.classList.add('over'); });
       z.addEventListener('dragleave', () => z.classList.remove('over'));
       z.addEventListener('drop', ev => {
-        ev.preventDefault();
+        ev.preventDefault(); ev.stopPropagation();
         const id = ev.dataTransfer.getData('text/plain');
         const tile = game.hands[HUMAN].find(t => t.id === id);
         if (tile) attemptPlay(tile, z.dataset.side);
       });
     });
+    // soltar en la cadena (cualquier parte): lado automático o pregunta
+    const chainEl = view.querySelector('.chain');
+    if (chainEl && myTurn) {
+      chainEl.addEventListener('dragover', ev => { ev.preventDefault(); chainEl.classList.add('dragover'); });
+      chainEl.addEventListener('dragleave', () => chainEl.classList.remove('dragover'));
+      chainEl.addEventListener('drop', ev => {
+        ev.preventDefault();
+        chainEl.classList.remove('dragover');
+        const id = ev.dataTransfer.getData('text/plain');
+        const tile = game.hands[HUMAN].find(t => t.id === id);
+        if (tile) attemptPlay(tile, null);
+      });
+    }
     const bp = $('#btn-pass'); if (bp) bp.onclick = () => { busy = true; window.DOMI.pass(game, HUMAN); drawTable(); maybeBots(); };
     const bh = $('#btn-hint'); if (bh) bh.onclick = showHint;
     const bn = $('#btn-new'); if (bn) bn.onclick = renderPractice;

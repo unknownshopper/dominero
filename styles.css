@@ -236,6 +236,7 @@ body {
 }
 
 .chain .end { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.chain.dragover { border-color: var(--accent); background: rgba(242, 177, 52, .1); }
 .chain-empty { color: var(--muted); font-size: .85rem; font-style: italic; }
 
 .dropzone {
