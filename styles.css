@@ -217,7 +217,7 @@ body {
 }
 
 /* filas de la serpiente: casillas fijas -> esquinas siempre alineadas */
-.srow { display: flex; align-items: center; gap: 0; }
+.srow { display: flex; align-items: flex-end; gap: 0; }
 .srow.rev { flex-direction: row-reverse; }
 .srow .domino {
   width: 72px;            /* mismo SLOTW que en app.js */
